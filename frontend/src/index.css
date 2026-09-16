@@ -16,3 +16,38 @@ body {
 *::after {
   box-sizing: border-box;
 }
+
+/* Shared design tokens. Values are explicit rather than OS-dependent so that a
+   component opting into them renders identically under either color-scheme. */
+:root {
+  --md-surface: #ffffff;
+  --md-surface-sunken: #f4f6fa;
+  --md-surface-disabled: #eceff4;
+  --md-border: #d6dce6;
+  --md-border-strong: #aeb9c9;
+  --md-text: #101828;
+  --md-text-muted: #56607a;
+
+  --md-accent: #1d4ed8;
+  --md-accent-hover: #1a44bc;
+  --md-accent-active: #16399e;
+  --md-accent-contrast: #ffffff;
+  --md-accent-ring: rgba(29, 78, 216, 0.24);
+
+  --md-danger-surface: #fdf2f2;
+  --md-danger-border: #f0c4c4;
+  --md-danger-text: #b42318;
+
+  --md-warning-surface: #fff8e8;
+  --md-warning-border: #ead8a8;
+  --md-warning-text: #7a4a06;
+
+  --md-inert-surface: #c8cfdb;
+  --md-inert-text: #4b556a;
+
+  --md-radius-sm: 6px;
+  --md-radius-md: 8px;
+  --md-radius-lg: 12px;
+
+  --md-shadow-card: 0 1px 2px rgba(16, 24, 40, 0.06), 0 14px 34px rgba(16, 24, 40, 0.12);
+}

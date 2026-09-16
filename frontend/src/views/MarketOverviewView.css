@@ -1,0 +1,66 @@
+.market-overview h2 {
+  margin: 0 0 4px;
+}
+
+.market-overview .subtitle {
+  margin: 0 0 16px;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.market-overview .status {
+  padding: 12px 0;
+  opacity: 0.7;
+}
+
+.market-overview .error {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #d14343;
+  border-radius: 4px;
+  color: #d14343;
+  font-size: 14px;
+}
+
+.market-overview table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.market-overview th,
+.market-overview td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #8884;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.market-overview th:first-child,
+.market-overview td:first-child {
+  text-align: left;
+}
+
+.market-overview th {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
+.market-overview tbody tr {
+  cursor: pointer;
+}
+
+.market-overview tbody tr:hover,
+.market-overview tbody tr:focus-visible {
+  background: #8882;
+}
+
+.market-overview .up {
+  color: #18893d;
+}
+
+.market-overview .down {
+  color: #d14343;
+}

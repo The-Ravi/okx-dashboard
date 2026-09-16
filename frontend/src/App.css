@@ -3,3 +3,46 @@ main {
   margin: 0 auto;
   padding: 24px 16px;
 }
+
+.session-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #8884;
+  font-size: 14px;
+}
+
+.session-bar button {
+  margin-left: auto;
+  padding: 5px 10px;
+  font: inherit;
+  font-size: 13px;
+  border: 1px solid #8886;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.session-bar .connecting {
+  padding: 3px 8px;
+  border: 1px solid #8886;
+  border-radius: 4px;
+  opacity: 0.8;
+}
+
+.session-bar .reconnecting {
+  padding: 3px 8px;
+  border: 1px solid #b8860b;
+  border-radius: 4px;
+  color: #b8860b;
+}
+
+.session-bar .connection-lost {
+  padding: 3px 8px;
+  border: 1px solid #d14343;
+  border-radius: 4px;
+  color: #d14343;
+}

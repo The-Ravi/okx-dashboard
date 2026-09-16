@@ -25,14 +25,21 @@ public class AuthService {
 
 	private final SessionRegistry sessionRegistry;
 
-	public AuthService(UserStore userStore, SessionRegistry sessionRegistry) {
+	private final SupersededSocketHandler supersededSocketHandler;
+
+	public AuthService(UserStore userStore, SessionRegistry sessionRegistry,
+			SupersededSocketHandler supersededSocketHandler) {
 		this.userStore = userStore;
 		this.sessionRegistry = sessionRegistry;
+		this.supersededSocketHandler = supersededSocketHandler;
 	}
 
 	/**
 	 * Authenticates a login request, returning the issued token on success or empty on any
 	 * failure. Callers must not distinguish an unknown username from a wrong password.
+	 * <p>
+	 * A successful login is the point at which the previous session for this user ends: its token
+	 * stops resolving and, if a client was still connected under it, that connection is closed.
 	 */
 	public Optional<LoginResponse> login(LoginRequest request) {
 		if (request == null || isBlank(request.username()) || isBlank(request.password())) {
@@ -45,7 +52,7 @@ public class AuthService {
 			return Optional.empty();
 		}
 		String token = UUID.randomUUID().toString();
-		this.sessionRegistry.register(username, token);
+		this.sessionRegistry.register(username, token, this.supersededSocketHandler);
 		return Optional.of(new LoginResponse(token, username));
 	}
 

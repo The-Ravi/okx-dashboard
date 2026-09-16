@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.BiConsumer;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
@@ -15,9 +14,10 @@ import org.springframework.web.socket.WebSocketSession;
  * <p>
  * Every mutation of either map happens while holding that user's lock, so the two cannot drift
  * apart. The lock is a {@link ReentrantLock} rather than {@code ConcurrentHashMap.compute} because
- * {@link #attachWebSocket} runs socket I/O inside the critical section: closing a superseded socket
- * can dispatch its close callback on the calling thread, which would re-enter the registry. That is
- * safe under a reentrant lock, whereas a recursive update from inside {@code compute} is forbidden.
+ * {@link #register} and {@link #attachWebSocket} both run socket I/O inside the critical section:
+ * closing a superseded socket can dispatch its close callback on the calling thread, which would
+ * re-enter the registry. That is safe under a reentrant lock, whereas a recursive update from
+ * inside {@code compute} is forbidden.
  */
 @Component
 public class SessionRegistry {
@@ -29,22 +29,30 @@ public class SessionRegistry {
 	private final Map<String, ReentrantLock> locks = new ConcurrentHashMap<>();
 
 	/**
-	 * Registers a freshly issued token for a user, replacing any previous session entry and
-	 * dropping the superseded token from the reverse index so it can no longer resolve.
+	 * Registers a freshly issued token for a user, replacing any previous session entry, dropping
+	 * the superseded token from the reverse index so it can no longer resolve, and handing any
+	 * socket still open under that old token to {@code supersededHandler}.
 	 * <p>
 	 * Because the map is keyed by userId, a second successful login for the same user overwrites
-	 * the entry, so the token issued earlier is orphaned and immediately unusable. That is
-	 * intentional: it is the "newest authentication wins" half of the single-session rule.
-	 * Terminating the superseded WebSocket is the other half and is handled where that socket is
-	 * managed, not here.
+	 * the entry, so the token issued earlier is orphaned and immediately unusable. Revoking the
+	 * token is not enough on its own: an already-open socket was authenticated at connect time and
+	 * is never re-checked against the reverse index, so it would keep streaming under a token that
+	 * no longer exists. The old client is therefore closed out here, while the entry it belongs to
+	 * is still the current one.
 	 */
-	public SessionInfo register(String userId, String token) {
+	public SessionInfo register(String userId, String token, SupersededSocketHandler supersededHandler) {
 		ReentrantLock lock = lockFor(userId);
 		lock.lock();
 		try {
 			SessionInfo previous = this.sessions.get(userId);
 			if (previous != null) {
 				this.userIdsByToken.remove(previous.getToken());
+				WebSocketSession supersededSocket = previous.getWebSocketSession();
+				if (supersededSocket != null) {
+					// Before the new entry is installed, so the close callback this provokes still
+					// finds the entry it is clearing and does not touch the incoming session.
+					supersededHandler.onSuperseded(userId, supersededSocket);
+				}
 			}
 			SessionInfo session = new SessionInfo(token, null);
 			this.sessions.put(userId, session);
@@ -67,7 +75,7 @@ public class SessionRegistry {
 	 * which case nothing was attached
 	 */
 	public Optional<String> attachWebSocket(String token, WebSocketSession socket,
-			BiConsumer<String, WebSocketSession> supersededHandler) {
+			SupersededSocketHandler supersededHandler) {
 		if (token == null) {
 			return Optional.empty();
 		}
@@ -86,7 +94,7 @@ public class SessionRegistry {
 			}
 			WebSocketSession previous = session.getWebSocketSession();
 			if (previous != null) {
-				supersededHandler.accept(userId, previous);
+				supersededHandler.onSuperseded(userId, previous);
 			}
 			session.setWebSocketSession(socket);
 			return Optional.of(userId);
