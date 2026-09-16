@@ -1,4 +1,4 @@
 /**
- * Client-facing HTTP controllers and the session WebSocket endpoint.
+ * Client-facing HTTP controllers.
  */
 package com.assignment.marketdata.web;

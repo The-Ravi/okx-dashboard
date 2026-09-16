@@ -10,7 +10,8 @@ public class SessionInfo {
 
 	private final String token;
 
-	private WebSocketSession webSocketSession;
+	// Written and read from different container threads.
+	private volatile WebSocketSession webSocketSession;
 
 	public SessionInfo(String token, WebSocketSession webSocketSession) {
 		this.token = token;
