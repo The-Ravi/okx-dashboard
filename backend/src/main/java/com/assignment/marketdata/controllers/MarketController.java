@@ -1,4 +1,4 @@
-package com.assignment.marketdata.web;
+package com.assignment.marketdata.controllers;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.assignment.marketdata.model.TickerDto;
-import com.assignment.marketdata.okx.OkxRestClient;
+import com.assignment.marketdata.HttpHandler.OkxRestClient;
 
 /**
  * Market overview endpoint. Deliberately unauthenticated, and served entirely from the cached

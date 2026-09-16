@@ -1,4 +1,4 @@
-package com.assignment.marketdata.web;
+package com.assignment.marketdata.controllers;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

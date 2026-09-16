@@ -1,4 +1,4 @@
-package com.assignment.marketdata.okx;
+package com.assignment.marketdata.HttpHandler;
 
 import java.math.BigDecimal;
 import java.net.URI;
