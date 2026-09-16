@@ -87,6 +87,26 @@ user will not stay open.
   message carries the complete 15-level window, so the client renders what it is given and never
   merges deltas.
 
+## Screenshots
+
+**Sign in** — username and password, checked server-side.
+
+![Sign in](docs/screenshots/login.png)
+
+**Invalid credentials** — the same generic error whether the username or the password was wrong.
+
+![Invalid credentials](docs/screenshots/login-invalid.png)
+
+**Market overview** — top 20 spot pairs by 24h volume, refreshed every 5 seconds. Green/red 24h
+change; click a row for that pair's order book.
+
+![Market overview](docs/screenshots/overview.png)
+
+**Live order book** — top 15 bids and asks for the selected pair, streamed over the session
+WebSocket.
+
+![BTC-USDT order book](docs/screenshots/orderbook.png)
+
 ### API surface
 
 | Endpoint | Purpose |
