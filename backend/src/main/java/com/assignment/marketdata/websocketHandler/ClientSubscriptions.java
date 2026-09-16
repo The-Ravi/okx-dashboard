@@ -1,4 +1,4 @@
-package com.assignment.marketdata.gateway;
+package com.assignment.marketdata.websocketHandler;
 
 import java.util.List;
 import java.util.Map;

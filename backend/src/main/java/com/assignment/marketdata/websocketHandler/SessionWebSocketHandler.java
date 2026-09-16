@@ -1,4 +1,4 @@
-package com.assignment.marketdata.gateway;
+package com.assignment.marketdata.websocketHandler;
 
 import java.io.IOException;
 import java.net.URI;

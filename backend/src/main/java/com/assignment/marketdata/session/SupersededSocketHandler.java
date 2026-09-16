@@ -7,7 +7,7 @@ import org.springframework.web.socket.WebSocketSession;
  * <p>
  * Both halves of the single-session rule displace a socket, and each is detected in a place that
  * has no business writing WebSocket frames: a second login is handled by the HTTP layer, and a
- * second connect by the registry itself. Both hand the loser here, and the gateway that owns the
+ * second connect by the registry itself. Both hand the loser here, and the WebSocket handler that owns the
  * socket decides what the departing client is told.
  */
 public interface SupersededSocketHandler {

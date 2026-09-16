@@ -1,4 +1,4 @@
-package com.assignment.marketdata.gateway;
+package com.assignment.marketdata.websocketHandler;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
