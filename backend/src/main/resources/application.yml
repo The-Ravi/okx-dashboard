@@ -1,0 +1,6 @@
+server:
+  port: 8477
+
+okx:
+  rest-base-url: https://www.okx.com
+  websocket-url: wss://ws.okx.com:8443/ws/v5/public
