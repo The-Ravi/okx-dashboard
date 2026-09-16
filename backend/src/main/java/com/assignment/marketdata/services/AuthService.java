@@ -10,7 +10,7 @@ import com.assignment.marketdata.model.LoginRequest;
 import com.assignment.marketdata.model.LoginResponse;
 import com.assignment.marketdata.session.SessionRegistry;
 import com.assignment.marketdata.session.SupersededSocketHandler;
-import com.assignment.marketdata.session.UserStore;
+import com.assignment.marketdata.utility.UserStore;
 
 /**
  * Verifies submitted credentials and issues opaque session tokens.

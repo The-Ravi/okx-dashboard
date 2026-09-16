@@ -1,4 +1,4 @@
-package com.assignment.marketdata.session;
+package com.assignment.marketdata.utility;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
