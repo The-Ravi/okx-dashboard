@@ -1,0 +1,9 @@
+# Agent scratch — not part of the product
+agent-tools/
+uploads/*.txt
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp

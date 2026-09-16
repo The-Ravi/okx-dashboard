@@ -1,0 +1,172 @@
+/* The card carries its own light theme (surface, text, controls) so it reads the
+   same whether the OS asks for light or dark, even though :root opts the rest of
+   the app into `color-scheme: light dark`. */
+.login {
+  color-scheme: light;
+  max-width: 400px;
+  margin-inline: auto;
+  margin-block: clamp(16px, 6vh, 56px);
+  padding: clamp(22px, 5vw, 32px);
+  border: 1px solid var(--md-border);
+  border-radius: var(--md-radius-lg);
+  background: var(--md-surface);
+  box-shadow: var(--md-shadow-card);
+  color: var(--md-text);
+}
+
+.login h2 {
+  margin: 0 0 4px;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--md-text);
+}
+
+.login h2::after {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 2px;
+  margin-top: 10px;
+  border-radius: 1px;
+  background: var(--md-accent);
+}
+
+.login form {
+  display: flex;
+  flex-direction: column;
+  margin-top: 22px;
+}
+
+.login label {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--md-text-muted);
+}
+
+.login label ~ label {
+  margin-top: 16px;
+}
+
+.login input {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 12px;
+  font: inherit;
+  font-size: 15px;
+  border: 1px solid var(--md-border-strong);
+  border-radius: var(--md-radius-md);
+  background: var(--md-surface-sunken);
+  color: var(--md-text);
+  transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.login input:hover:enabled {
+  border-color: #8e9bb0;
+}
+
+.login input:focus {
+  outline: none;
+  border-color: var(--md-accent);
+  background: var(--md-surface);
+  box-shadow: 0 0 0 3px var(--md-accent-ring);
+}
+
+.login input:disabled {
+  border-color: var(--md-border);
+  background: var(--md-surface-disabled);
+  color: var(--md-text-muted);
+  -webkit-text-fill-color: var(--md-text-muted);
+  cursor: not-allowed;
+}
+
+.login input:-webkit-autofill {
+  -webkit-text-fill-color: var(--md-text);
+  box-shadow: inset 0 0 0 40px var(--md-surface-sunken);
+}
+
+.login input:-webkit-autofill:focus {
+  box-shadow: inset 0 0 0 40px var(--md-surface), 0 0 0 3px var(--md-accent-ring);
+}
+
+.login button {
+  margin-top: 24px;
+  padding: 12px 16px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: var(--md-radius-md);
+  background: var(--md-accent);
+  color: var(--md-accent-contrast);
+  cursor: pointer;
+  transition: background-color 120ms ease, transform 60ms ease;
+}
+
+.login button:hover:enabled {
+  background: var(--md-accent-hover);
+}
+
+.login button:active:enabled {
+  background: var(--md-accent-active);
+  transform: translateY(1px);
+}
+
+.login button:focus-visible {
+  outline: 2px solid var(--md-accent);
+  outline-offset: 2px;
+}
+
+.login button:disabled {
+  background: var(--md-inert-surface);
+  color: var(--md-inert-text);
+  transform: none;
+  cursor: progress;
+}
+
+.login .notice,
+.login .error {
+  padding: 10px 12px;
+  border: 1px solid;
+  border-left-width: 3px;
+  border-radius: var(--md-radius-sm);
+  font-size: 14px;
+}
+
+.login .notice {
+  margin: 18px 0 0;
+  border-color: var(--md-warning-border);
+  border-left-color: var(--md-warning-text);
+  background: var(--md-warning-surface);
+  color: var(--md-warning-text);
+}
+
+.login .error {
+  margin: 18px 0 0;
+  border-color: var(--md-danger-border);
+  border-left-color: var(--md-danger-text);
+  background: var(--md-danger-surface);
+  color: var(--md-danger-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login input,
+  .login button {
+    transition: none;
+  }
+
+  .login button:active:enabled {
+    transform: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .login input:focus,
+  .login button:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}

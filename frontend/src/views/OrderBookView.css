@@ -1,0 +1,79 @@
+.order-book h2 {
+  margin: 0 0 4px;
+}
+
+.order-book .breadcrumb {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+
+.order-book .subtitle {
+  margin: 0 0 16px;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.order-book .status {
+  padding: 8px 0;
+  opacity: 0.7;
+}
+
+.order-book .error {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #d14343;
+  border-radius: 4px;
+  color: #d14343;
+  font-size: 14px;
+}
+
+.order-book .warning {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #b8860b;
+  border-radius: 4px;
+  color: #b8860b;
+  font-size: 14px;
+}
+
+.order-book .book-grid {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.book-side {
+  flex: 1;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.book-side th,
+.book-side td {
+  padding: 5px 10px;
+  border-bottom: 1px solid #8884;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.book-side thead th {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
+.book-side.bid .price {
+  color: #18893d;
+}
+
+.book-side.ask .price {
+  color: #d14343;
+}
+
+.book-side .skeleton span {
+  display: block;
+  height: 12px;
+  border-radius: 3px;
+  background: #8883;
+}
