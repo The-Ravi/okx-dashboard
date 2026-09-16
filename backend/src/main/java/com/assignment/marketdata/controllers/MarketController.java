@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.assignment.marketdata.model.TickerDto;
-import com.assignment.marketdata.HttpHandler.OkxRestClient;
+import com.assignment.marketdata.services.MarketService;
 
 /**
  * Market overview endpoint. Deliberately unauthenticated, and served entirely from the cached
@@ -16,14 +16,14 @@ import com.assignment.marketdata.HttpHandler.OkxRestClient;
 @RestController
 public class MarketController {
 
-	private final OkxRestClient okxRestClient;
+	private final MarketService marketService;
 
-	public MarketController(OkxRestClient okxRestClient) {
-		this.okxRestClient = okxRestClient;
+	public MarketController(MarketService marketService) {
+		this.marketService = marketService;
 	}
 
 	@GetMapping("/market/overview")
 	public List<TickerDto> overview() {
-		return this.okxRestClient.getTopTickers();
+		return this.marketService.getOverview();
 	}
 }

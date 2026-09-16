@@ -19,7 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.assignment.marketdata.model.ErrorMessage;
 import com.assignment.marketdata.HttpHandler.OkxOrderBookClient;
-import com.assignment.marketdata.HttpHandler.OkxRestClient;
+import com.assignment.marketdata.services.MarketService;
 import com.assignment.marketdata.session.SessionRegistry;
 import com.assignment.marketdata.session.SupersededSocketHandler;
 
@@ -47,15 +47,15 @@ public class SessionWebSocketHandler extends TextWebSocketHandler implements Sup
 
 	private final OkxOrderBookClient orderBookClient;
 
-	private final OkxRestClient restClient;
+	private final MarketService marketService;
 
 	private final ObjectMapper objectMapper;
 
 	public SessionWebSocketHandler(SessionRegistry sessionRegistry, OkxOrderBookClient orderBookClient,
-			OkxRestClient restClient, ObjectMapper objectMapper) {
+			MarketService marketService, ObjectMapper objectMapper) {
 		this.sessionRegistry = sessionRegistry;
 		this.orderBookClient = orderBookClient;
-		this.restClient = restClient;
+		this.marketService = marketService;
 		this.objectMapper = objectMapper;
 	}
 
@@ -121,7 +121,7 @@ public class SessionWebSocketHandler extends TextWebSocketHandler implements Sup
 	}
 
 	private void handleSubscribe(WebSocketSession session, String instId) {
-		if (instId == null || instId.isBlank() || !this.restClient.isKnownInstrument(instId)) {
+		if (instId == null || instId.isBlank() || !this.marketService.isKnownInstrument(instId)) {
 			sendError(session, "unknown instrument " + instId);
 			return;
 		}

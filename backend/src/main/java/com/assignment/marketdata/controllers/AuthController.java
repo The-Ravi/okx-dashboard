@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.assignment.marketdata.exception.InvalidCredentialsException;
 import com.assignment.marketdata.model.LoginRequest;
 import com.assignment.marketdata.model.LoginResponse;
-import com.assignment.marketdata.session.AuthService;
+import com.assignment.marketdata.services.AuthService;
 
 /**
- * Login endpoint. HTTP concerns only: credential checking and token issuance live in the session
+ * Login endpoint. HTTP concerns only: credential checking and token issuance live in the services
  * package, and the 401 body is rendered by the exception package.
  */
 @RestController
