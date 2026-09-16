@@ -37,7 +37,7 @@ render error states.
 
 ```bash
 cd backend
-./mvnw spring-boot:run
+./mvnw clean spring-boot:run
 ```
 
 Wait for `Started MarketdataApplication`. Roughly five seconds later the first ticker poll logs
