@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.assignment.marketdata.HttpHandler.OkxRestClient;
+import com.assignment.marketdata.httphandlers.OkxRestClient;
 import com.assignment.marketdata.model.TickerDto;
 
 /**

@@ -1,4 +1,4 @@
-package com.assignment.marketdata.HttpHandler;
+package com.assignment.marketdata.httphandlers;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

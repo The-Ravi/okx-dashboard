@@ -18,7 +18,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.assignment.marketdata.model.ErrorMessage;
-import com.assignment.marketdata.HttpHandler.OkxOrderBookClient;
+import com.assignment.marketdata.httphandlers.OkxOrderBookClient;
 import com.assignment.marketdata.services.MarketService;
 import com.assignment.marketdata.session.SessionRegistry;
 import com.assignment.marketdata.session.SupersededSocketHandler;

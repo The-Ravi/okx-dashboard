@@ -1,4 +1,4 @@
 /**
  * Adapter for the OKX upstream: REST ticker polling and the shared public WebSocket client.
  */
-package com.assignment.marketdata.HttpHandler;
+package com.assignment.marketdata.httphandlers;

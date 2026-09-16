@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import com.assignment.marketdata.model.OrderBookUpdate;
-import com.assignment.marketdata.HttpHandler.OkxOrderBookClient;
+import com.assignment.marketdata.httphandlers.OkxOrderBookClient;
 
 /**
  * One client connection's order book interests, and the thing that guarantees they are given back.
