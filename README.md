@@ -53,6 +53,18 @@ npm run dev
 
 Then open <http://127.0.0.1:5317>.
 
+## Deploy
+
+The production image is one process: Vite builds into Spring Boot's static files, then Java serves
+the UI, `/auth`, `/market/overview`, and `/ws/session`. Hosts that set `PORT` are picked up
+automatically.
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/The-Ravi/okx-dashboard)
+
+Render builds the Dockerfile from this repo. After the first deploy, open the service URL and sign
+in with a [test account](#test-credentials). The free instance sleeps when idle, so the first hit
+after a pause can take half a minute, and the host must be allowed outbound HTTPS/WSS to OKX.
+
 The Vite dev server proxies `/auth`, `/market` and `/ws` (with `ws: true`) to `localhost:8477`, so
 the browser only ever sees one origin and the backend needs no CORS configuration. It is pinned to
 `127.0.0.1` on purpose: `localhost` resolves to `::1` first on some hosts, which leaves the IPv4

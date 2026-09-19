@@ -1,5 +1,6 @@
 server:
-  port: 8477
+  port: ${PORT:8477}
+  forward-headers-strategy: framework
 
 okx:
   rest-base-url: https://www.okx.com

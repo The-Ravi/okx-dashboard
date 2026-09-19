@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: market-desk
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /market/overview
+    envVars:
+      - key: JAVA_OPTS
+        value: -XX:MaxRAMPercentage=75.0
