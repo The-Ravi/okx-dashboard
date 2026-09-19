@@ -1,5 +1,7 @@
 package com.assignment.marketdata.exception;
 
+import com.assignment.marketdata.utility.AppConstants;
+
 /**
  * Raised when a login submission does not identify a user.
  * <p>
@@ -9,7 +11,7 @@ package com.assignment.marketdata.exception;
 public class InvalidCredentialsException extends RuntimeException {
 
 	public InvalidCredentialsException() {
-		super("invalid credentials");
+		super(AppConstants.Errors.INVALID_CREDENTIALS);
 	}
 
 }

@@ -1,10 +1,6 @@
 package com.assignment.marketdata.httphandlers;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,26 +14,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import com.assignment.marketdata.model.TickerDto;
+import com.assignment.marketdata.services.TickerSource;
+import com.assignment.marketdata.utility.AppConstants;
+import com.assignment.marketdata.utility.AppUtils;
 
 /**
  * Polls OKX's public spot ticker endpoint on a schedule and keeps the ranked top slice in memory.
  * <p>
  * The upstream response covers every spot instrument OKX lists, which is on the order of 1400
  * entries and some 450 KB per call, so it is fetched on a timer and served from cache rather than
- * per incoming request.
+ * per incoming request. Ranking is delegated to {@link TickerRanking}.
  */
 @Component
-public class OkxRestClient {
+public class OkxRestClient implements TickerSource {
 
 	private static final Logger logger = LoggerFactory.getLogger(OkxRestClient.class);
-
-	private static final String TICKERS_PATH = "/api/v5/market/tickers?instType=SPOT";
-
-	private static final String SUCCESS_CODE = "0";
-
-	private static final int TOP_N = 20;
-
-	private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
 	/**
 	 * Read from request threads, replaced wholesale by the scheduler thread. Always an immutable
@@ -47,18 +38,20 @@ public class OkxRestClient {
 
 	private final RestClient restClient;
 
-	public OkxRestClient(@Value("${okx.rest-base-url}") String restBaseUrl) {
+	private final TickerRanking tickerRanking;
+
+	public OkxRestClient(@Value("${okx.rest-base-url}") String restBaseUrl,
+			TickerRanking tickerRanking) {
 		// Without explicit timeouts a stalled connection would occupy the single-threaded
 		// scheduler indefinitely and no further poll would ever run.
 		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-		requestFactory.setConnectTimeout(Duration.ofSeconds(3));
-		requestFactory.setReadTimeout(Duration.ofSeconds(5));
+		requestFactory.setConnectTimeout(Duration.ofSeconds(AppConstants.Okx.HTTP_CONNECT_TIMEOUT_SECONDS));
+		requestFactory.setReadTimeout(Duration.ofSeconds(AppConstants.Okx.HTTP_READ_TIMEOUT_SECONDS));
 		this.restClient = RestClient.builder().baseUrl(restBaseUrl).requestFactory(requestFactory).build();
+		this.tickerRanking = tickerRanking;
 	}
 
-	/**
-	 * The cached ranking, empty until the first poll succeeds.
-	 */
+	@Override
 	public List<TickerDto> getTopTickers() {
 		return this.topTickers;
 	}
@@ -67,37 +60,32 @@ public class OkxRestClient {
 	 * Whether an instrument is part of the cached universe clients are allowed to stream. Nothing
 	 * is known until the first poll lands, a window of a few hundred milliseconds after startup.
 	 */
+	@Override
 	public boolean isKnownInstrument(String instId) {
-		if (instId == null) {
-			return false;
-		}
-		for (TickerDto ticker : this.topTickers) {
-			if (instId.equals(ticker.instId())) {
-				return true;
-			}
-		}
-		return false;
+		return AppUtils.isKnownInstrument(this.topTickers, instId);
 	}
 
 	/**
 	 * fixedDelay rather than fixedRate: a slow upstream call delays the next poll instead of
 	 * letting invocations pile up behind it.
 	 */
-	@Scheduled(initialDelay = 0, fixedDelay = 5000)
+	@Scheduled(initialDelay = AppConstants.Okx.TICKER_POLL_INITIAL_DELAY_MS,
+			fixedDelay = AppConstants.Okx.TICKER_POLL_DELAY_MS)
 	public void pollTickers() {
 		try {
-			JsonNode response = this.restClient.get().uri(TICKERS_PATH).retrieve().body(JsonNode.class);
+			JsonNode response = this.restClient.get().uri(AppConstants.Okx.TICKERS_PATH).retrieve()
+					.body(JsonNode.class);
 			if (response == null) {
 				logger.warn("OKX ticker poll returned an empty body; keeping the previous cache");
 				return;
 			}
-			String code = response.path("code").asText();
-			JsonNode data = response.path("data");
-			if (!SUCCESS_CODE.equals(code) || !data.isArray()) {
+			String code = response.path(AppConstants.Json.CODE).asText();
+			JsonNode data = response.path(AppConstants.Json.DATA);
+			if (!AppConstants.Okx.SUCCESS_CODE.equals(code) || !data.isArray()) {
 				logger.warn("OKX ticker poll returned code '{}'; keeping the previous cache", code);
 				return;
 			}
-			List<TickerDto> ranked = rankTopTickers(data);
+			List<TickerDto> ranked = this.tickerRanking.rank(data);
 			this.topTickers = ranked;
 			logger.info("OKX ticker fetch: {} instruments received, cached top {}", data.size(),
 					ranked.size());
@@ -108,79 +96,4 @@ public class OkxRestClient {
 		}
 	}
 
-	/**
-	 * Ranks every spot instrument by quote-currency notional and keeps the leaders.
-	 * <p>
-	 * Ranking spans all quote currencies, as the contract specifies. Because {@code volCcy24h} is
-	 * denominated in each pair's own quote currency, the result legitimately mixes them and pairs
-	 * quoted in other currencies can outrank larger USDT pairs.
-	 */
-	private static List<TickerDto> rankTopTickers(JsonNode data) {
-		List<RankedTicker> ranked = new ArrayList<>(data.size());
-		for (JsonNode node : data) {
-			String instId = textOrNull(node, "instId");
-			if (instId == null) {
-				continue;
-			}
-			String quoteVolume = textOrNull(node, "volCcy24h");
-			String last = textOrNull(node, "last");
-			TickerDto ticker = new TickerDto(instId, last, changePercent(last, textOrNull(node, "open24h")),
-					quoteVolume);
-			ranked.add(new RankedTicker(toBigDecimalOrZero(quoteVolume), ticker));
-		}
-		// Numeric comparison: volCcy24h arrives as a string, and sorting it lexicographically would
-		// rank by leading digit rather than magnitude.
-		ranked.sort(Comparator.comparing(RankedTicker::quoteVolume).reversed());
-		List<TickerDto> top = new ArrayList<>(Math.min(TOP_N, ranked.size()));
-		for (RankedTicker entry : ranked.subList(0, Math.min(TOP_N, ranked.size()))) {
-			top.add(entry.ticker());
-		}
-		return List.copyOf(top);
-	}
-
-	/**
-	 * {@code ((last - open24h) / open24h) * 100} to two decimal places, or null when any input is
-	 * missing, unparseable, or would divide by zero. Null keeps the response valid JSON, which
-	 * Infinity and NaN would not.
-	 */
-	private static BigDecimal changePercent(String last, String open24h) {
-		if (last == null || open24h == null) {
-			return null;
-		}
-		try {
-			BigDecimal open = new BigDecimal(open24h);
-			if (open.signum() == 0) {
-				return null;
-			}
-			// Multiplying before dividing keeps this to a single rounding step.
-			return new BigDecimal(last).subtract(open).multiply(HUNDRED).divide(open, 2, RoundingMode.HALF_UP);
-		}
-		catch (NumberFormatException | ArithmeticException ex) {
-			return null;
-		}
-	}
-
-	private static BigDecimal toBigDecimalOrZero(String value) {
-		if (value == null) {
-			return BigDecimal.ZERO;
-		}
-		try {
-			return new BigDecimal(value);
-		}
-		catch (NumberFormatException ex) {
-			// Rank it last rather than failing the whole poll.
-			return BigDecimal.ZERO;
-		}
-	}
-
-	private static String textOrNull(JsonNode node, String field) {
-		JsonNode value = node.get(field);
-		if (value == null || !value.isTextual() || value.asText().isEmpty()) {
-			return null;
-		}
-		return value.asText();
-	}
-
-	private record RankedTicker(BigDecimal quoteVolume, TickerDto ticker) {
-	}
 }

@@ -25,9 +25,9 @@ public class UserStore {
 	public UserStore() {
 		// The plaintext exists only as arguments to hashpw and is never assigned anywhere.
 		Map<String, String> hashes = new LinkedHashMap<>();
-		hashes.put("trader1", BCrypt.hashpw("changeme123", BCrypt.gensalt()));
-		hashes.put("trader2", BCrypt.hashpw("orderbook456", BCrypt.gensalt()));
-		hashes.put("analyst1", BCrypt.hashpw("depthchart789", BCrypt.gensalt()));
+		hashes.put(AppConstants.Users.TRADER1, BCrypt.hashpw(AppConstants.Users.TRADER1_PASSWORD, BCrypt.gensalt()));
+		hashes.put(AppConstants.Users.TRADER2, BCrypt.hashpw(AppConstants.Users.TRADER2_PASSWORD, BCrypt.gensalt()));
+		hashes.put(AppConstants.Users.ANALYST1, BCrypt.hashpw(AppConstants.Users.ANALYST1_PASSWORD, BCrypt.gensalt()));
 		this.passwordHashes = Map.copyOf(hashes);
 	}
 
@@ -35,7 +35,7 @@ public class UserStore {
 	 * Returns the stored BCrypt hash for the given username, or empty if no such user exists.
 	 */
 	public Optional<String> findPasswordHash(String username) {
-		if (username == null) {
+		if (AppUtils.isBlank(username)) {
 			return Optional.empty();
 		}
 		return Optional.ofNullable(this.passwordHashes.get(username));

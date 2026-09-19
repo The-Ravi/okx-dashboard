@@ -2,6 +2,8 @@ package com.assignment.marketdata.model;
 
 import java.util.List;
 
+import com.assignment.marketdata.enums.ClientMessageType;
+
 /**
  * A complete top-of-book window pushed to a client.
  * <p>
@@ -17,6 +19,6 @@ public record OrderBookUpdate(String type, String instId, String ts, List<List<S
 		List<List<String>> asks) {
 
 	public OrderBookUpdate(String instId, String ts, List<List<String>> bids, List<List<String>> asks) {
-		this("book", instId, ts, bids, asks);
+		this(ClientMessageType.BOOK.value(), instId, ts, bids, asks);
 	}
 }

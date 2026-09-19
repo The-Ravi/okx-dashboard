@@ -15,13 +15,15 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import org.springframework.web.util.UriComponentsBuilder;
 
+import com.assignment.marketdata.enums.WireOp;
 import com.assignment.marketdata.model.ErrorMessage;
-import com.assignment.marketdata.httphandlers.OkxOrderBookClient;
 import com.assignment.marketdata.services.MarketService;
+import com.assignment.marketdata.services.OrderBookFeed;
 import com.assignment.marketdata.session.SessionRegistry;
 import com.assignment.marketdata.session.SupersededSocketHandler;
+import com.assignment.marketdata.utility.AppConstants;
+import com.assignment.marketdata.utility.AppUtils;
 
 /**
  * The {@code /ws/session} endpoint: authenticates the connection from its {@code token} query
@@ -33,28 +35,25 @@ public class SessionWebSocketHandler extends TextWebSocketHandler implements Sup
 
 	private static final Logger logger = LoggerFactory.getLogger(SessionWebSocketHandler.class);
 
-	private static final String SESSION_TERMINATED = "{\"type\":\"session_terminated\"}";
+	private static final CloseStatus INVALID_TOKEN = new CloseStatus(
+			AppConstants.WebSocket.CLOSE_CODE_INVALID_TOKEN,
+			AppConstants.WebSocket.CLOSE_REASON_INVALID_TOKEN);
 
-	private static final CloseStatus INVALID_TOKEN = new CloseStatus(4001, "invalid token");
-
-	private static final CloseStatus SUPERSEDED = new CloseStatus(4000, "superseded");
-
-	private static final String USER_ID_ATTRIBUTE = "marketdata.userId";
-
-	private static final String SUBSCRIPTIONS_ATTRIBUTE = "marketdata.subscriptions";
+	private static final CloseStatus SUPERSEDED = new CloseStatus(
+			AppConstants.WebSocket.CLOSE_CODE_SUPERSEDED, AppConstants.WebSocket.CLOSE_REASON_SUPERSEDED);
 
 	private final SessionRegistry sessionRegistry;
 
-	private final OkxOrderBookClient orderBookClient;
+	private final OrderBookFeed orderBookFeed;
 
 	private final MarketService marketService;
 
 	private final ObjectMapper objectMapper;
 
-	public SessionWebSocketHandler(SessionRegistry sessionRegistry, OkxOrderBookClient orderBookClient,
+	public SessionWebSocketHandler(SessionRegistry sessionRegistry, OrderBookFeed orderBookFeed,
 			MarketService marketService, ObjectMapper objectMapper) {
 		this.sessionRegistry = sessionRegistry;
-		this.orderBookClient = orderBookClient;
+		this.orderBookFeed = orderBookFeed;
 		this.marketService = marketService;
 		this.objectMapper = objectMapper;
 	}
@@ -71,8 +70,9 @@ public class SessionWebSocketHandler extends TextWebSocketHandler implements Sup
 			session.close(INVALID_TOKEN);
 			return;
 		}
-		session.getAttributes().put(USER_ID_ATTRIBUTE, userId.get());
-		session.getAttributes().put(SUBSCRIPTIONS_ATTRIBUTE, new ClientSubscriptions(this.orderBookClient));
+		session.getAttributes().put(AppConstants.WebSocket.USER_ID_ATTRIBUTE, userId.get());
+		session.getAttributes().put(AppConstants.WebSocket.SUBSCRIPTIONS_ATTRIBUTE,
+				new ClientSubscriptions(this.orderBookFeed));
 		logger.info("Session WebSocket opened for user {} (socket {})", userId.get(), session.getId());
 	}
 
@@ -84,23 +84,23 @@ public class SessionWebSocketHandler extends TextWebSocketHandler implements Sup
 				root = this.objectMapper.readTree(message.getPayload());
 			}
 			catch (Exception ex) {
-				sendError(session, "malformed message");
+				sendError(session, AppConstants.Errors.MALFORMED_MESSAGE);
 				return;
 			}
 			if (root == null || !root.isObject()) {
-				sendError(session, "malformed message");
+				sendError(session, AppConstants.Errors.MALFORMED_MESSAGE);
 				return;
 			}
-			String op = root.path("op").asText(null);
-			String instId = root.path("instId").asText(null);
-			if ("subscribe".equals(op)) {
+			WireOp op = WireOp.fromValue(root.path(AppConstants.Json.OP).asText(null));
+			String instId = root.path(AppConstants.Json.INST_ID).asText(null);
+			if (op == WireOp.SUBSCRIBE) {
 				handleSubscribe(session, instId);
 			}
-			else if ("unsubscribe".equals(op)) {
+			else if (op == WireOp.UNSUBSCRIBE) {
 				handleUnsubscribe(session, instId);
 			}
 			else {
-				sendError(session, "unknown op " + op);
+				sendError(session, AppConstants.Errors.UNKNOWN_OP_PREFIX + root.path(AppConstants.Json.OP).asText());
 			}
 		}
 		catch (Exception ex) {
@@ -121,8 +121,8 @@ public class SessionWebSocketHandler extends TextWebSocketHandler implements Sup
 	}
 
 	private void handleSubscribe(WebSocketSession session, String instId) {
-		if (instId == null || instId.isBlank() || !this.marketService.isKnownInstrument(instId)) {
-			sendError(session, "unknown instrument " + instId);
+		if (AppUtils.isBlank(instId) || !this.marketService.isKnownInstrument(instId)) {
+			sendError(session, AppConstants.Errors.UNKNOWN_INSTRUMENT_PREFIX + instId);
 			return;
 		}
 		ClientSubscriptions subscriptions = subscriptionsOf(session);
@@ -139,8 +139,8 @@ public class SessionWebSocketHandler extends TextWebSocketHandler implements Sup
 	}
 
 	private void handleUnsubscribe(WebSocketSession session, String instId) {
-		if (instId == null || instId.isBlank()) {
-			sendError(session, "unknown instrument " + instId);
+		if (AppUtils.isBlank(instId)) {
+			sendError(session, AppConstants.Errors.UNKNOWN_INSTRUMENT_PREFIX + instId);
 			return;
 		}
 		ClientSubscriptions subscriptions = subscriptionsOf(session);
@@ -159,10 +159,10 @@ public class SessionWebSocketHandler extends TextWebSocketHandler implements Sup
 				supersededSocket.getId());
 		// Released here rather than left to the close callback, so the kick cannot strand upstream
 		// subscriptions even if the close notification never arrives.
-		releaseSubscriptions(supersededSocket, "superseded");
+		releaseSubscriptions(supersededSocket, AppConstants.WebSocket.CLOSE_REASON_SUPERSEDED);
 		try {
 			if (supersededSocket.isOpen()) {
-				sendRaw(supersededSocket, SESSION_TERMINATED);
+				sendRaw(supersededSocket, AppConstants.WebSocket.SESSION_TERMINATED_FRAME);
 			}
 			supersededSocket.close(SUPERSEDED);
 		}
@@ -182,7 +182,7 @@ public class SessionWebSocketHandler extends TextWebSocketHandler implements Sup
 	 */
 	private void releaseSocket(WebSocketSession session, String cause) {
 		releaseSubscriptions(session, cause);
-		Object userId = session.getAttributes().get(USER_ID_ATTRIBUTE);
+		Object userId = session.getAttributes().get(AppConstants.WebSocket.USER_ID_ATTRIBUTE);
 		if (!(userId instanceof String id)) {
 			return;
 		}
@@ -210,7 +210,7 @@ public class SessionWebSocketHandler extends TextWebSocketHandler implements Sup
 	}
 
 	private static ClientSubscriptions subscriptionsOf(WebSocketSession session) {
-		Object value = session.getAttributes().get(SUBSCRIPTIONS_ATTRIBUTE);
+		Object value = session.getAttributes().get(AppConstants.WebSocket.SUBSCRIPTIONS_ATTRIBUTE);
 		return (value instanceof ClientSubscriptions subscriptions) ? subscriptions : null;
 	}
 
@@ -249,9 +249,7 @@ public class SessionWebSocketHandler extends TextWebSocketHandler implements Sup
 	}
 
 	private static String extractToken(URI uri) {
-		if (uri == null) {
-			return null;
-		}
-		return UriComponentsBuilder.fromUri(uri).build().getQueryParams().getFirst("token");
+		return AppUtils.queryParam(uri, AppConstants.WebSocket.TOKEN_QUERY_PARAM);
 	}
+
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.assignment.marketdata.model.TickerDto;
 import com.assignment.marketdata.services.MarketService;
+import com.assignment.marketdata.utility.AppConstants;
 
 /**
  * Market overview endpoint. Deliberately unauthenticated, and served entirely from the cached
@@ -22,7 +23,7 @@ public class MarketController {
 		this.marketService = marketService;
 	}
 
-	@GetMapping("/market/overview")
+	@GetMapping(AppConstants.Http.MARKET_OVERVIEW_PATH)
 	public List<TickerDto> overview() {
 		return this.marketService.getOverview();
 	}

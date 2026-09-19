@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import com.assignment.marketdata.model.OrderBookUpdate;
-import com.assignment.marketdata.httphandlers.OkxOrderBookClient;
+import com.assignment.marketdata.services.OrderBookFeed;
 
 /**
  * One client connection's order book interests, and the thing that guarantees they are given back.
@@ -19,14 +19,14 @@ import com.assignment.marketdata.httphandlers.OkxOrderBookClient;
  */
 final class ClientSubscriptions {
 
-	private final OkxOrderBookClient orderBookClient;
+	private final OrderBookFeed orderBookFeed;
 
 	private final Map<String, Consumer<OrderBookUpdate>> listenersByInstId = new ConcurrentHashMap<>();
 
 	private final AtomicBoolean released = new AtomicBoolean();
 
-	ClientSubscriptions(OkxOrderBookClient orderBookClient) {
-		this.orderBookClient = orderBookClient;
+	ClientSubscriptions(OrderBookFeed orderBookFeed) {
+		this.orderBookFeed = orderBookFeed;
 	}
 
 	/**
@@ -41,7 +41,7 @@ final class ClientSubscriptions {
 		if (this.listenersByInstId.putIfAbsent(instId, listener) != null) {
 			return false;
 		}
-		this.orderBookClient.subscribe(instId, listener);
+		this.orderBookFeed.subscribe(instId, listener);
 		return true;
 	}
 
@@ -53,7 +53,7 @@ final class ClientSubscriptions {
 		if (listener == null) {
 			return false;
 		}
-		this.orderBookClient.unsubscribe(instId, listener);
+		this.orderBookFeed.unsubscribe(instId, listener);
 		return true;
 	}
 

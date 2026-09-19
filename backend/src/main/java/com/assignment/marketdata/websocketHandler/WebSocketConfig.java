@@ -5,6 +5,8 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+import com.assignment.marketdata.utility.AppConstants;
+
 /**
  * Maps the session handler onto {@code /ws/session}.
  */
@@ -21,6 +23,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 		// The dev frontend is served from a different port, so same-origin-only would reject it.
-		registry.addHandler(this.sessionWebSocketHandler, "/ws/session").setAllowedOriginPatterns("*");
+		registry.addHandler(this.sessionWebSocketHandler, AppConstants.WebSocket.SESSION_PATH)
+				.setAllowedOriginPatterns(AppConstants.Http.ALLOWED_ORIGIN_PATTERN);
 	}
 }

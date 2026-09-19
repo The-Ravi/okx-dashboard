@@ -13,6 +13,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.assignment.marketdata.model.ErrorResponse;
+import com.assignment.marketdata.utility.AppConstants;
 
 /**
  * Single exit point for HTTP errors. Every failure leaves as {@code {"error": "..."}} with a status
@@ -29,7 +30,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(InvalidCredentialsException.class)
 	public ResponseEntity<ErrorResponse> handleInvalidCredentials() {
-		return respond(HttpStatus.UNAUTHORIZED, "invalid credentials");
+		return respond(HttpStatus.UNAUTHORIZED, AppConstants.Errors.INVALID_CREDENTIALS);
 	}
 
 	/**
@@ -40,24 +41,25 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public ResponseEntity<ErrorResponse> handleUnreadableBody(HttpMessageNotReadableException ex) {
 		logger.debug("Rejected an unreadable request body: {}", ex.getMessage());
-		return respond(HttpStatus.BAD_REQUEST, "malformed request body");
+		return respond(HttpStatus.BAD_REQUEST, AppConstants.Errors.MALFORMED_REQUEST_BODY);
 	}
 
 	@ExceptionHandler({ MissingServletRequestParameterException.class,
 			MethodArgumentTypeMismatchException.class })
 	public ResponseEntity<ErrorResponse> handleBadParameters(Exception ex) {
 		logger.debug("Rejected a request with bad parameters: {}", ex.getMessage());
-		return respond(HttpStatus.BAD_REQUEST, "invalid request parameters");
+		return respond(HttpStatus.BAD_REQUEST, AppConstants.Errors.INVALID_REQUEST_PARAMETERS);
 	}
 
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	public ResponseEntity<ErrorResponse> handleWrongMethod(HttpRequestMethodNotSupportedException ex) {
-		return respond(HttpStatus.METHOD_NOT_ALLOWED, "method " + ex.getMethod() + " not allowed");
+		return respond(HttpStatus.METHOD_NOT_ALLOWED, AppConstants.Errors.METHOD_NOT_ALLOWED_PREFIX
+				+ ex.getMethod() + AppConstants.Errors.METHOD_NOT_ALLOWED_SUFFIX);
 	}
 
 	@ExceptionHandler(NoResourceFoundException.class)
 	public ResponseEntity<ErrorResponse> handleUnknownPath() {
-		return respond(HttpStatus.NOT_FOUND, "not found");
+		return respond(HttpStatus.NOT_FOUND, AppConstants.Errors.NOT_FOUND);
 	}
 
 	/**
@@ -67,7 +69,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
 		logger.error("Unhandled exception while serving a request", ex);
-		return respond(HttpStatus.INTERNAL_SERVER_ERROR, "internal server error");
+		return respond(HttpStatus.INTERNAL_SERVER_ERROR, AppConstants.Errors.INTERNAL_SERVER_ERROR);
 	}
 
 	private static ResponseEntity<ErrorResponse> respond(HttpStatus status, String message) {

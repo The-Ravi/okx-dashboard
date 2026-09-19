@@ -10,6 +10,7 @@ import com.assignment.marketdata.model.LoginRequest;
 import com.assignment.marketdata.model.LoginResponse;
 import com.assignment.marketdata.session.SessionRegistry;
 import com.assignment.marketdata.session.SupersededSocketHandler;
+import com.assignment.marketdata.utility.AppUtils;
 import com.assignment.marketdata.utility.UserStore;
 
 /**
@@ -45,7 +46,7 @@ public class AuthService {
 	 * stops resolving and, if a client was still connected under it, that connection is closed.
 	 */
 	public Optional<LoginResponse> login(LoginRequest request) {
-		if (request == null || isBlank(request.username()) || isBlank(request.password())) {
+		if (request == null || AppUtils.isBlank(request.username()) || AppUtils.isBlank(request.password())) {
 			return Optional.empty();
 		}
 		String username = request.username();
@@ -59,7 +60,4 @@ public class AuthService {
 		return Optional.of(new LoginResponse(token, username));
 	}
 
-	private static boolean isBlank(String value) {
-		return value == null || value.isBlank();
-	}
 }

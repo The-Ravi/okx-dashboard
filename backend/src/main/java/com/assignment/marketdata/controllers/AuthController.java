@@ -9,13 +9,14 @@ import com.assignment.marketdata.exception.InvalidCredentialsException;
 import com.assignment.marketdata.model.LoginRequest;
 import com.assignment.marketdata.model.LoginResponse;
 import com.assignment.marketdata.services.AuthService;
+import com.assignment.marketdata.utility.AppConstants;
 
 /**
  * Login endpoint. HTTP concerns only: credential checking and token issuance live in the services
  * package, and the 401 body is rendered by the exception package.
  */
 @RestController
-@RequestMapping("/auth")
+@RequestMapping(AppConstants.Http.AUTH_BASE)
 public class AuthController {
 
 	private final AuthService authService;
@@ -24,7 +25,7 @@ public class AuthController {
 		this.authService = authService;
 	}
 
-	@PostMapping("/login")
+	@PostMapping(AppConstants.Http.LOGIN_PATH)
 	public LoginResponse login(@RequestBody(required = false) LoginRequest request) {
 		return this.authService.login(request).orElseThrow(InvalidCredentialsException::new);
 	}
