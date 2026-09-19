@@ -2,6 +2,8 @@ package com.assignment.marketdata.controllers;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +20,8 @@ import com.assignment.marketdata.utility.AppConstants;
 @RestController
 public class MarketController {
 
+	private static final Logger logger = LoggerFactory.getLogger(MarketController.class);
+
 	private final MarketService marketService;
 
 	public MarketController(MarketService marketService) {
@@ -26,7 +30,9 @@ public class MarketController {
 
 	@GetMapping(AppConstants.Http.MARKET_OVERVIEW_PATH)
 	public ResponseEntity<List<TickerDto>> overview() {
-		return ResponseEntity.ok(this.marketService.getOverview());
+		List<TickerDto> tickers = this.marketService.getOverview();
+		logger.debug("Serving market overview with {} tickers", tickers.size());
+		return ResponseEntity.ok(tickers);
 	}
 
 }

@@ -53,12 +53,14 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	public ResponseEntity<ErrorResponse> handleWrongMethod(HttpRequestMethodNotSupportedException ex) {
+		logger.debug("Rejected {} because the method is not allowed", ex.getMethod());
 		return respond(HttpStatus.METHOD_NOT_ALLOWED, AppConstants.Errors.METHOD_NOT_ALLOWED_PREFIX
 				+ ex.getMethod() + AppConstants.Errors.METHOD_NOT_ALLOWED_SUFFIX);
 	}
 
 	@ExceptionHandler(NoResourceFoundException.class)
 	public ResponseEntity<ErrorResponse> handleUnknownPath() {
+		logger.debug("Rejected a request for an unknown path");
 		return respond(HttpStatus.NOT_FOUND, AppConstants.Errors.NOT_FOUND);
 	}
 

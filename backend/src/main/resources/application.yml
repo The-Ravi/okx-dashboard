@@ -4,3 +4,11 @@ server:
 okx:
   rest-base-url: https://www.okx.com
   websocket-url: wss://ws.okx.com:8443/ws/v5/public
+
+logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%thread] %logger{40} : %msg%n"
+  level:
+    root: INFO
+    com.assignment.marketdata: INFO
+    org.springframework.web: WARN

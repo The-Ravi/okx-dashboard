@@ -67,6 +67,8 @@ public class SessionWebSocketHandler extends TextWebSocketHandler implements Sup
 		String token = extractToken(session.getUri());
 		Optional<String> userId = this.sessionRegistry.attachWebSocket(token, session, this);
 		if (userId.isEmpty()) {
+			logger.warn("Rejected WebSocket with an invalid or superseded token (socket {})",
+					session.getId());
 			session.close(INVALID_TOKEN);
 			return;
 		}

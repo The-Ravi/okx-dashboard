@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.mindrot.jbcrypt.BCrypt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.assignment.marketdata.model.LoginRequest;
@@ -18,6 +20,8 @@ import com.assignment.marketdata.utility.UserStore;
  */
 @Service
 public class AuthService {
+
+	private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
 	/**
 	 * Hash of a random throwaway value, used to spend the same BCrypt work on an unknown username
@@ -47,16 +51,19 @@ public class AuthService {
 	 */
 	public Optional<LoginResponse> login(LoginRequest request) {
 		if (request == null || AppUtils.isBlank(request.username()) || AppUtils.isBlank(request.password())) {
+			logger.debug("Login rejected because the request is missing a username or password");
 			return Optional.empty();
 		}
 		String username = request.username();
 		Optional<String> storedHash = this.userStore.findPasswordHash(username);
 		boolean passwordMatches = BCrypt.checkpw(request.password(), storedHash.orElse(this.dummyHash));
 		if (storedHash.isEmpty() || !passwordMatches) {
+			logger.warn("Login failed for user {}", username);
 			return Optional.empty();
 		}
 		String token = UUID.randomUUID().toString();
 		this.sessionRegistry.register(username, token, this.supersededSocketHandler);
+		logger.info("Login succeeded for user {}", username);
 		return Optional.of(new LoginResponse(token, username));
 	}
 

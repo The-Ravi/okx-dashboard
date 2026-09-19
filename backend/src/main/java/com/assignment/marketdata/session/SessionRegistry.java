@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -21,6 +23,8 @@ import org.springframework.web.socket.WebSocketSession;
  */
 @Component
 public class SessionRegistry {
+
+	private static final Logger logger = LoggerFactory.getLogger(SessionRegistry.class);
 
 	private final Map<String, SessionInfo> sessions = new ConcurrentHashMap<>();
 
@@ -46,6 +50,7 @@ public class SessionRegistry {
 		try {
 			SessionInfo previous = this.sessions.get(userId);
 			if (previous != null) {
+				logger.info("Replacing existing session for user {}", userId);
 				this.userIdsByToken.remove(previous.getToken());
 				WebSocketSession supersededSocket = previous.getWebSocketSession();
 				if (supersededSocket != null) {
@@ -53,6 +58,9 @@ public class SessionRegistry {
 					// finds the entry it is clearing and does not touch the incoming session.
 					supersededHandler.onSuperseded(userId, supersededSocket);
 				}
+			}
+			else {
+				logger.info("Registered session for user {}", userId);
 			}
 			SessionInfo session = new SessionInfo(token, null);
 			this.sessions.put(userId, session);

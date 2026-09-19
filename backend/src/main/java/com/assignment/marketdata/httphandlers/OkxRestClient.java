@@ -86,9 +86,16 @@ public class OkxRestClient implements TickerSource {
 				return;
 			}
 			List<TickerDto> ranked = this.tickerRanking.rank(data);
+			boolean firstFill = this.topTickers.isEmpty() && !ranked.isEmpty();
 			this.topTickers = ranked;
-			logger.info("OKX ticker fetch: {} instruments received, cached top {}", data.size(),
-					ranked.size());
+			if (firstFill) {
+				logger.info("OKX ticker cache primed: {} instruments received, cached top {}",
+						data.size(), ranked.size());
+			}
+			else {
+				logger.debug("OKX ticker fetch: {} instruments received, cached top {}", data.size(),
+						ranked.size());
+			}
 		}
 		catch (Exception ex) {
 			// Serving slightly stale data beats blanking the client's table on a transient blip.
