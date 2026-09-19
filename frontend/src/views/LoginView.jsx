@@ -30,50 +30,60 @@ function LoginView() {
   }
 
   return (
-    <section className="login">
-      <h2>Sign in</h2>
+    <div className="login-layout">
+      <section className="login-brand" aria-hidden="true">
+        <span className="brand-mark" />
+        <h1>Market Desk</h1>
+        <p>Live public-market data from OKX. One session, streamed order books, no polling on depth.</p>
+      </section>
 
-      {notice && (
-        <p className="notice" role="status">
-          {notice}
-        </p>
-      )}
+      <section className="login">
+        <p className="login-kicker">Secure session</p>
+        <h2>Sign in</h2>
+        <p className="login-lead">Authenticate to open a live market session.</p>
 
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="username">Username</label>
-        <input
-          id="username"
-          name="username"
-          autoComplete="username"
-          value={username}
-          onChange={(event) => setUsername(event.target.value)}
-          disabled={isSubmitting}
-          required
-        />
-
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          disabled={isSubmitting}
-          required
-        />
-
-        {error && (
-          <p className="error" role="alert">
-            {error}
+        {notice && (
+          <p className="notice" role="status">
+            {notice}
           </p>
         )}
 
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Signing in...' : 'Sign in'}
-        </button>
-      </form>
-    </section>
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            name="username"
+            autoComplete="username"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+            disabled={isSubmitting}
+            required
+          />
+
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            disabled={isSubmitting}
+            required
+          />
+
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
+
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Signing in...' : 'Continue'}
+          </button>
+        </form>
+      </section>
+    </div>
   )
 }
 

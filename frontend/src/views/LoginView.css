@@ -1,35 +1,68 @@
-/* The card carries its own light theme (surface, text, controls) so it reads the
-   same whether the OS asks for light or dark, even though :root opts the rest of
-   the app into `color-scheme: light dark`. */
+.login-layout {
+  width: min(920px, 100%);
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 28px;
+  align-items: stretch;
+}
+
+.login-brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 12px 8px 12px 4px;
+}
+
+.login-brand .brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #5b8def 0%, #3dd68c 100%);
+  margin-bottom: 18px;
+}
+
+.login-brand h1 {
+  margin: 0 0 10px;
+  font-size: 36px;
+  letter-spacing: -0.03em;
+  font-weight: 650;
+}
+
+.login-brand p {
+  margin: 0;
+  max-width: 36ch;
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
 .login {
-  color-scheme: light;
-  max-width: 400px;
-  margin-inline: auto;
-  margin-block: clamp(16px, 6vh, 56px);
-  padding: clamp(22px, 5vw, 32px);
-  border: 1px solid var(--md-border);
-  border-radius: var(--md-radius-lg);
-  background: var(--md-surface);
-  box-shadow: var(--md-shadow-card);
-  color: var(--md-text);
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.login-kicker {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
 }
 
 .login h2 {
-  margin: 0 0 4px;
-  font-size: 21px;
+  margin: 0;
+  font-size: 24px;
   font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--md-text);
+  letter-spacing: -0.02em;
 }
 
-.login h2::after {
-  content: '';
-  display: block;
-  width: 28px;
-  height: 2px;
-  margin-top: 10px;
-  border-radius: 1px;
-  background: var(--md-accent);
+.login-lead {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
 .login form {
@@ -42,131 +75,94 @@
   margin: 0 0 6px;
   font-size: 12px;
   font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--md-text-muted);
+  color: var(--text-muted);
 }
 
 .login label ~ label {
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 .login input {
   width: 100%;
-  min-width: 0;
   padding: 11px 12px;
-  font: inherit;
-  font-size: 15px;
-  border: 1px solid var(--md-border-strong);
-  border-radius: var(--md-radius-md);
-  background: var(--md-surface-sunken);
-  color: var(--md-text);
-  transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
-}
-
-.login input:hover:enabled {
-  border-color: #8e9bb0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  color: var(--text);
 }
 
 .login input:focus {
   outline: none;
-  border-color: var(--md-accent);
-  background: var(--md-surface);
-  box-shadow: 0 0 0 3px var(--md-accent-ring);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-ring);
 }
 
 .login input:disabled {
-  border-color: var(--md-border);
-  background: var(--md-surface-disabled);
-  color: var(--md-text-muted);
-  -webkit-text-fill-color: var(--md-text-muted);
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-.login input:-webkit-autofill {
-  -webkit-text-fill-color: var(--md-text);
-  box-shadow: inset 0 0 0 40px var(--md-surface-sunken);
-}
-
-.login input:-webkit-autofill:focus {
-  box-shadow: inset 0 0 0 40px var(--md-surface), 0 0 0 3px var(--md-accent-ring);
-}
-
 .login button {
-  margin-top: 24px;
+  margin-top: 22px;
   padding: 12px 16px;
-  font: inherit;
-  font-size: 15px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--accent-contrast);
   font-weight: 600;
-  border: 1px solid transparent;
-  border-radius: var(--md-radius-md);
-  background: var(--md-accent);
-  color: var(--md-accent-contrast);
   cursor: pointer;
-  transition: background-color 120ms ease, transform 60ms ease;
 }
 
 .login button:hover:enabled {
-  background: var(--md-accent-hover);
-}
-
-.login button:active:enabled {
-  background: var(--md-accent-active);
-  transform: translateY(1px);
-}
-
-.login button:focus-visible {
-  outline: 2px solid var(--md-accent);
-  outline-offset: 2px;
+  background: var(--accent-hover);
 }
 
 .login button:disabled {
-  background: var(--md-inert-surface);
-  color: var(--md-inert-text);
-  transform: none;
+  opacity: 0.65;
   cursor: progress;
 }
 
 .login .notice,
 .login .error {
+  margin: 16px 0 0;
   padding: 10px 12px;
   border: 1px solid;
-  border-left-width: 3px;
-  border-radius: var(--md-radius-sm);
-  font-size: 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
 }
 
 .login .notice {
-  margin: 18px 0 0;
-  border-color: var(--md-warning-border);
-  border-left-color: var(--md-warning-text);
-  background: var(--md-warning-surface);
-  color: var(--md-warning-text);
+  border-color: var(--warning);
+  background: var(--warning-dim);
+  color: #f3d48a;
 }
 
 .login .error {
-  margin: 18px 0 0;
-  border-color: var(--md-danger-border);
-  border-left-color: var(--md-danger-text);
-  background: var(--md-danger-surface);
-  color: var(--md-danger-text);
+  border-color: var(--ask);
+  background: var(--danger-dim);
+  color: #ffb4b8;
+}
+
+@media (max-width: 800px) {
+  .login-layout {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+  }
+
+  .login-brand {
+    padding: 0 4px 4px;
+  }
+
+  .login-brand h1 {
+    font-size: 28px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .login input,
   .login button {
     transition: none;
-  }
-
-  .login button:active:enabled {
-    transform: none;
-  }
-}
-
-@media (forced-colors: active) {
-  .login input:focus,
-  .login button:focus-visible {
-    outline: 2px solid Highlight;
-    outline-offset: 2px;
   }
 }
