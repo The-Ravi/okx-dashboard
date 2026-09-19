@@ -2,6 +2,7 @@ services:
   - type: web
     name: market-desk
     runtime: docker
+    plan: free
     dockerfilePath: ./Dockerfile
     healthCheckPath: /market/overview
     envVars:
