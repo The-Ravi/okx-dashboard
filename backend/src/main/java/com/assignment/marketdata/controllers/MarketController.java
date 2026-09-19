@@ -2,6 +2,7 @@ package com.assignment.marketdata.controllers;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +25,8 @@ public class MarketController {
 	}
 
 	@GetMapping(AppConstants.Http.MARKET_OVERVIEW_PATH)
-	public List<TickerDto> overview() {
-		return this.marketService.getOverview();
+	public ResponseEntity<List<TickerDto>> overview() {
+		return ResponseEntity.ok(this.marketService.getOverview());
 	}
+
 }

@@ -1,5 +1,6 @@
 package com.assignment.marketdata.controllers;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,8 +27,10 @@ public class AuthController {
 	}
 
 	@PostMapping(AppConstants.Http.LOGIN_PATH)
-	public LoginResponse login(@RequestBody(required = false) LoginRequest request) {
-		return this.authService.login(request).orElseThrow(InvalidCredentialsException::new);
+	public ResponseEntity<LoginResponse> login(@RequestBody(required = false) LoginRequest request) {
+		LoginResponse response = this.authService.login(request)
+				.orElseThrow(InvalidCredentialsException::new);
+		return ResponseEntity.ok(response);
 	}
 
 }
